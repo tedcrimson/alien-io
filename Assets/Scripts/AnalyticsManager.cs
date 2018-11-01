@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 using Facebook.Unity;
-using GameAnalyticsSDK;
+// using GameAnalyticsSDK;
 using System;
 
 public class AnalyticsManager : MonoBehaviour
@@ -13,7 +13,9 @@ public class AnalyticsManager : MonoBehaviour
     // Awake function from Unity's MonoBehavior
     void Awake()
     {
-        GameAnalytics.Initialize();
+        // GameAnalytics.Initialize();
+        AppLovin.InitializeSdk();
+        AppLovin.PreloadInterstitial();
 
         if (Instance != null)
             Destroy(this.gameObject);
@@ -34,7 +36,7 @@ public class AnalyticsManager : MonoBehaviour
             FB.ActivateApp();
         }
 
-        StartEvent();
+        // StartEvent();
 
     }
 
@@ -85,7 +87,21 @@ public class AnalyticsManager : MonoBehaviour
     #region GAME_ANALYTICS
     public void GameOverEvent(int score)
     {
-        GameAnalytics.NewProgressionEvent(GAProgressionStatus.Complete, "game", score);
+
+        // Showing without using PreloadInterstitial
+        AppLovin.ShowInterstitial();
+
+        // Showing utilizing PreloadInterstitial and HasPreloadedInterstitial
+        if (AppLovin.HasPreloadedInterstitial())
+        {
+            // An ad is currently available, so show the interstitial.
+            AppLovin.ShowInterstitial();
+        }
+        else
+        {
+            // No ad is available.  Perform failover logic...
+        }
+        // GameAnalytics.NewProgressionEvent(GAProgressionStatus.Complete, "game", score);
 
         var param = new Dictionary<string, object>();
         param[AppEventParameterName.ContentID] = "game";
@@ -98,12 +114,12 @@ public class AnalyticsManager : MonoBehaviour
     }
     public void GameOverPlaceEvent(int place)
     {
-        GameAnalytics.NewProgressionEvent(GAProgressionStatus.Complete, "place", place);
+        // GameAnalytics.NewProgressionEvent(GAProgressionStatus.Complete, "place", place);
 
         var param = new Dictionary<string, object>();
         param[AppEventParameterName.ContentID] = "place";
         param[AppEventParameterName.Success] = "1";
-        param[AppEventParameterName.Level] = place+"";
+        param[AppEventParameterName.Level] = place + "";
 
         FB.LogAppEvent(
             AppEventName.CompletedRegistration,
@@ -111,17 +127,17 @@ public class AnalyticsManager : MonoBehaviour
         );
     }
 
-    public void StartEvent()
-    {
-        GameAnalytics.NewProgressionEvent(GAProgressionStatus.Start, "game");
+    // public void StartEvent()
+    // {
+    //     GameAnalytics.NewProgressionEvent(GAProgressionStatus.Start, "game");
 
-        
-    }
 
-    public void HighScoreEvent(int score)
-    {
-        GameAnalytics.NewProgressionEvent(GAProgressionStatus.Complete, "highscore", score);
-    }
+    // }
+
+    // public void HighScoreEvent(int score)
+    // {
+    //     GameAnalytics.NewProgressionEvent(GAProgressionStatus.Complete, "highscore", score);
+    // }
 
 
     #endregion
