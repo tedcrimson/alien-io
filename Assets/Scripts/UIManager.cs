@@ -87,7 +87,9 @@ public class UIManager : MonoBehaviour
         if (target is PlayerController)
         {
             ShowFinalPanel();
-        }else if(ufo is PlayerController){
+        }
+        else if (ufo is PlayerController)
+        {
             Destroy(Instantiate(killTextPrefab, lvlupContainer), 1f);
         }
         StatsUpdate();
@@ -125,6 +127,8 @@ public class UIManager : MonoBehaviour
         PlaceText.text = place + sufix + " place";
 
         GameOverPanel.SetActive(true);
+        AnalyticsManager.Instance.GameOverEvent(levelManager.MainPlayer().xp);
+        AnalyticsManager.Instance.GameOverPlaceEvent(place);
     }
 
     private void AddXp(UFOController ufo, int xp, bool up)
@@ -144,31 +148,34 @@ public class UIManager : MonoBehaviour
     {
         List<UFOController> players = levelManager.SortedPlayers();
 
+        if(players == null || players.Count == 0)return;
+
         // UFOController.TOP_PLAYER = players[0];
         players[0].SetTopPlayer();
-        int c = 0;
-        for (int i = 0; i < players.Count; i++)
+        // int c = 0;
+        for (int i = 0; i < 5; i++)
         {
-            if(c == 5)
-                break;
+            // if(c == 5)
+            //     break;
 
-            var child = playersContainer.GetChild(c);
-            var player = players[i];
-            if (player.CanPlay)
+            var child = playersContainer.GetChild(i);
+            if (i < players.Count)
             {
-                c++;
+                var player = players[i];
+
                 child.gameObject.SetActive(true);
 
                 child.GetComponentInChildren<Image>().color = player.Color;
-                child.GetComponentInChildren<Text>().text = string.Format("{0} {1}-{2} xp", (c + 1), player.Name, player.xp);
-                
+                child.GetComponentInChildren<Text>().text = string.Format("{0} {1}-{2} xp", (i + 1), player.Name, player.xp);
+
+
             }
             else
             {
                 child.gameObject.SetActive(false);
             }
 
-            
+
         }
 
 
@@ -201,7 +208,7 @@ public class UIManager : MonoBehaviour
                 }
 
                 arrows[i].position = UpdateTargetIconPosition(screenPos);
-                
+
                 // var screenPos = Camera.main.WorldToViewportPoint(players[i].transform.position); //get viewport positions
 
 
@@ -210,12 +217,12 @@ public class UIManager : MonoBehaviour
                 // // var worldToViewportPoint = Camera.main.WorldToViewportPoint (players[i].transform.position);
                 // // returns coming from upper left
                 // //worldToViewportPoint = (-0.1, 0.5, 14.8), viewportToScreenPoint =(-66.1, 361.3, 14.8)
-                                       
+
                 // var screenPosClamped  = new Vector3(Mathf.Clamp(screenPos.x, 0.0f, 1.0f), Mathf.Clamp(screenPos.y, 0.0f, 1.0f), 0);
                 // Debug.Log(screenPosClamped);
-               
+
                 // var v3 = new Vector3(screenPosClamped.x * Screen.width, screenPosClamped.y * Screen.height, 0);
-                                                                       
+
                 // arrows[i].position = v3;
 
                 // no
@@ -239,12 +246,12 @@ public class UIManager : MonoBehaviour
 
     private Vector3 UpdateTargetIconPosition(Vector3 newPos)
     {
-        if(newPos.z < 0)
+        if (newPos.z < 0)
         {
             newPos.x = 1f - newPos.x;
             newPos.y = 1f - newPos.y;
             newPos.z = 0;
-        newPos = Vector3Maxamize(newPos);
+            newPos = Vector3Maxamize(newPos);
         }
         newPos = Camera.main.ViewportToScreenPoint(newPos);
         newPos.x = Mathf.Clamp(newPos.x, m_edgeBuffer, Screen.width - m_edgeBuffer);
@@ -254,17 +261,17 @@ public class UIManager : MonoBehaviour
     }
 
     public Vector3 Vector3Maxamize(Vector3 vector)
-       {
-       Vector3 returnVector = vector;
-       float max = 0;
-       max = vector.x > max ? vector.x : max;
-       max = vector.y > max ? vector.y : max;
-       max = vector.z > max ? vector.z : max;
-       returnVector /= max;
-       return returnVector;
-       }
+    {
+        Vector3 returnVector = vector;
+        float max = 0;
+        max = vector.x > max ? vector.x : max;
+        max = vector.y > max ? vector.y : max;
+        max = vector.z > max ? vector.z : max;
+        returnVector /= max;
+        return returnVector;
+    }
 
     [Range(0, 100)]
     public float m_edgeBuffer;
-    
+
 }

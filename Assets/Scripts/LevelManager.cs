@@ -62,13 +62,13 @@ public class LevelManager : MonoBehaviour
 
     public int IndexOfPlayer()
     {
-        return SortedPlayers().IndexOf(mainPlayer);
+        return players.OrderByDescending((x)=>x.xp).ToList().IndexOf(mainPlayer);
     }
 
     public List<UFOController> SortedPlayers()
     {
         // players.Sort((x, y) => -1 * x.xp.CompareTo(y.xp));
-        return players.OrderByDescending((x)=>x.xp).ToList();
+        return players.Where((x)=>x.CanPlay).OrderByDescending((x)=>x.xp).ToList();
     }
 
     private void CanPlay()
